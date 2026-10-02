@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alarmclock</title>
+<meta name="description" content="ADHD-timer och väckarklocka med färgkodade sysslor">
+<meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a181d" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alarmclock">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf7f2; --card: #ffffffcc; --ink: #2d2a32; --soft: #7a7480; --line: #ece6dd; --track: #f1ece4;
+  --hem: #bfe3cb; --hem-i: #2f6b47; --arenden: #ffd5bd; --arenden-i: #9a4f22; --manniskor: #f7cfe0; --manniskor-i: #93365f;
+  --skola: #c9def8; --skola-i: #2c5d8f; --jobb: #dcd2f6; --jobb-i: #5a4597; --privat: #f8e8a8; --privat-i: #7d6210;
+  --accent: #dcd2f6; --accent-i: #5a4597; --shadow: 0 1px 2px #0000000a, 0 8px 24px #3a2c4a0d; --r: 22px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1a181d; --card: #24212acc; --ink: #efeaf2; --soft: #a39dab; --line: #34303b; --track: #2c2932;
+  --hem: #3c5d48; --hem-i: #bfe9cf; --arenden: #6a4734; --arenden-i: #ffd9c2; --manniskor: #643c50; --manniskor-i: #f9d3e4;
+  --skola: #34506f; --skola-i: #cfe3fa; --jobb: #4a4070; --jobb-i: #e2d9fa; --privat: #615324; --privat-i: #f9ebb2;
+  --accent: #4a4070; --accent-i: #e2d9fa; --shadow: 0 1px 2px #0004, 0 8px 24px #0003; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #1a181d; --card: #24212acc; --ink: #efeaf2; --soft: #a39dab; --line: #34303b; --track: #2c2932;
+  --hem: #3c5d48; --hem-i: #bfe9cf; --arenden: #6a4734; --arenden-i: #ffd9c2; --manniskor: #643c50; --manniskor-i: #f9d3e4;
+  --skola: #34506f; --skola-i: #cfe3fa; --jobb: #4a4070; --jobb-i: #e2d9fa; --privat: #615324; --privat-i: #f9ebb2;
+  --accent: #4a4070; --accent-i: #e2d9fa; --shadow: 0 1px 2px #0004, 0 8px 24px #0003; color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 Nunito, ui-rounded, system-ui, sans-serif; min-height: 100dvh; }
+body::before { content: ''; position: fixed; inset: -20% -10% auto; height: 70vh; z-index: -1; pointer-events: none;
+  background: radial-gradient(40% 50% at 20% 30%, color-mix(in srgb, var(--manniskor) 55%, transparent), transparent),
+              radial-gradient(40% 50% at 80% 20%, color-mix(in srgb, var(--skola) 55%, transparent), transparent),
+              radial-gradient(40% 50% at 60% 60%, color-mix(in srgb, var(--hem) 45%, transparent), transparent); filter: blur(40px); opacity: .7; }
+main { max-width: 1080px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); display: grid; gap: 16px; }
+@media (min-width: 900px) { main { grid-template-columns: 380px 1fr; align-items: start; padding-top: 32px; } .side { position: sticky; top: 24px; } }
+.side, .flow { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: var(--r); padding: 18px; box-shadow: var(--shadow); border: 1px solid var(--line); min-width: 0; }
+h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin: 0 0 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: var(--track); border-radius: 999px; padding: 8px 14px; font-weight: 700; transition: transform .15s, background .2s, opacity .2s; }
+button:active { transform: scale(.96); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent-i); outline-offset: 2px; }
+.ghost { background: transparent; color: var(--soft); padding: 6px 10px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.muted { color: var(--soft); font-size: 14px; }
+
+/* header / clock */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.who { display: flex; align-items: center; gap: 6px; background: var(--track); border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 14px; color: var(--soft); max-width: 60%; }
+.who input { border: 0; background: transparent; width: 9ch; font-weight: 800; color: var(--ink); outline: none; min-width: 0; }
+.mode { font-size: 12px; color: var(--soft); }
+.clock { font-size: clamp(64px, 20vw, 92px); font-weight: 800; letter-spacing: -.04em; line-height: 1; margin: 14px 0 2px; font-variant-numeric: tabular-nums; }
+.date { color: var(--soft); font-weight: 600; } .date::first-letter, .day h3::first-letter { text-transform: uppercase; }
+.next { margin-top: 12px; display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 16px; font-weight: 700; }
+
+/* timer */
+.timer { display: grid; place-items: center; gap: 14px; }
+.dial { width: min(230px, 58vw); aspect-ratio: 1; border-radius: 50%; position: relative; display: grid; place-items: center;
+  background: conic-gradient(var(--tc, var(--accent)) calc(var(--p, 0) * 1turn), var(--track) 0); transition: --p .3s; box-shadow: inset 0 0 0 10px var(--card); }
+.dial::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; background: var(--card); backdrop-filter: blur(8px); }
+.dial b { position: relative; z-index: 1; font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.dial small { position: absolute; z-index: 1; top: 60%; color: var(--soft); font-weight: 700; font-size: 13px; max-width: 46%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mins { justify-content: center; gap: 6px; } .mins button { padding: 6px 10px; font-size: 14px; min-width: 38px; }
+.big { padding: 12px 26px; font-size: 17px; background: var(--accent); color: var(--accent-i); }
+
+/* chips */
+.chip { background: var(--c); color: var(--ci); font-weight: 700; padding: 8px 14px; border-radius: 999px; font-size: 15px; white-space: nowrap; }
+.chip.off { background: var(--track); color: var(--soft); opacity: .75; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--soft); font-weight: 700; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: -1px; }
+
+/* claude */
+.cl { display: grid; gap: 10px; }
+.clrow { display: grid; grid-template-columns: 58px 1fr; gap: 10px; align-items: center; }
+.clrow .row { gap: 6px; } .clrow .row button { padding: 6px 10px; font-size: 14px; }
+.clrow .row button.on { background: var(--jobb); color: var(--jobb-i); }
+.bar { height: 8px; border-radius: 99px; background: var(--track); overflow: hidden; grid-column: 2; }
+.bar i { display: block; height: 100%; background: var(--jobb-i); opacity: .55; border-radius: 99px; transition: width .4s; }
+.clinfo { grid-column: 2; font-size: 13px; color: var(--soft); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.clinfo input { border: 1px solid var(--line); background: transparent; border-radius: 10px; padding: 2px 6px; font-size: 13px; color: var(--soft); }
+
+/* agenda */
+.day { margin: 6px 0 14px; }
+.day h3 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+.day h3 span { color: var(--soft); font-weight: 600; margin-left: 6px; }
+.item { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; padding: 10px 10px 10px 14px; border-radius: 18px; margin-bottom: 6px;
+  background: color-mix(in srgb, var(--c) 55%, transparent); border-left: 6px solid var(--c); transition: opacity .3s, transform .2s; }
+.item.done { opacity: .45; }
+.item.done .tt { text-decoration: line-through; }
+.item .time { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ci); }
+.item .tt { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.item .meta { font-size: 12.5px; color: var(--soft); font-weight: 600; }
+.item .acts { display: flex; gap: 4px; }
+.item .acts button { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; background: var(--card); color: var(--ci); }
+.empty { text-align: center; padding: 28px 12px; color: var(--soft); }
+.cal { display: flex; flex-wrap: wrap; gap: 8px; }
+.cal button { font-size: 14px; }
+.log { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto; font-size: 14px; }
+.log li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.log b { font-weight: 800; }
+.log time { color: var(--soft); font-size: 12px; float: right; margin-left: 8px; }
+.log .d { color: var(--soft); font-size: 12.5px; display: block; }
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+
+/* dialogs */
+dialog { border: 0; border-radius: 26px; padding: 0; background: var(--bg); color: var(--ink); width: min(440px, calc(100vw - 24px)); box-shadow: 0 30px 80px #0003; }
+dialog::backdrop { background: #2a203833; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+dialog form { padding: 20px; display: grid; gap: 12px; }
+dialog h2 { margin: 0; }
+label { display: grid; gap: 4px; font-size: 13px; font-weight: 700; color: var(--soft); }
+.f { min-height: 46px; width: 100%; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 10px 12px; font-size: 16px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.catpick { display: flex; flex-wrap: wrap; gap: 6px; }
+.catpick label { display: block; }
+.catpick input { position: absolute; opacity: 0; pointer-events: none; }
+.catpick span { display: inline-block; padding: 6px 12px; border-radius: 999px; background: var(--track); color: var(--soft); font-size: 14px; cursor: pointer; transition: background .2s; }
+.catpick input:checked + span { background: var(--c); color: var(--ci); }
+.catpick input:focus-visible + span { outline: 2px solid var(--ci); }
+.end { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; } .end > .row { margin-left: auto; }
+.del { color: #b3485f; background: transparent; }
+
+/* alarm overlay */
+.alarm { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; text-align: center; padding: 24px; background: var(--c, var(--accent)); color: var(--ci, var(--accent-i)); }
+.alarm.on { display: grid; animation: breathe 2.4s ease-in-out infinite; }
+.alarm h1 { font-size: clamp(36px, 10vw, 64px); margin: 0; line-height: 1.1; }
+.alarm p { font-weight: 700; opacity: .8; }
+.alarm .row { justify-content: center; margin-top: 18px; }
+.alarm button { font-size: 18px; padding: 14px 28px; background: #ffffffaa; color: inherit; }
+.alarm button:focus-visible { outline-color: currentColor; }
+@keyframes breathe { 50% { filter: brightness(1.06) saturate(1.15); } }
+.toast { visibility: hidden; opacity: 0; position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 16px; font-weight: 700; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); z-index: 60; max-width: calc(100vw - 32px); }
+.toast.on { transform: translate(-50%, 0); visibility: visible; opacity: 1; }
+.banner { display: none; } .banner.on { display: flex; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="side">
+    <section class="card">
+      <div class="top">
+        <label class="who" title="Ditt namn — loggas vid ändringar">Jag är <input id="me" placeholder="namn" autocomplete="nickname" aria-label="Ditt namn"></label>
+        <span class="mode" id="mode"></span>
+      </div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+      <div class="next" id="next" hidden></div>
+    </section>
+
+    <section class="card timer">
+      <h2 style="width:100%">Timer <button class="ghost" id="tReset" type="button">Nollställ</button></h2>
+      <div class="dial" id="dial"><b id="tLeft">25:00</b><small id="tLabel"></small></div>
+      <div class="row mins" id="mins"></div>
+      <button class="big" id="tGo" type="button">Starta</button>
+    </section>
+
+    <section class="card">
+      <h2>Claude-gräns <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:600">tryck din nivå</span></h2>
+      <div class="cl" id="claude"></div>
+    </section>
+  </div>
+
+  <div class="flow">
+    <section class="card banner" id="sharedBanner" style="justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span id="sharedText"></span>
+      <div class="row"><button class="ghost" id="sharedNo" type="button">Ignorera</button><button class="big" id="sharedYes" type="button">Slå ihop</button></div>
+    </section>
+
+    <section class="card">
+      <h2>Snabbval <button class="ghost" id="addFree" type="button">+ Egen</button></h2>
+      <div class="chips" id="presets"></div>
+    </section>
+
+    <section class="card">
+      <h2>Kommande <span class="row" style="gap:4px"><button class="ghost" id="range" type="button">7 dagar</button></span></h2>
+      <div class="chips" id="filters" style="margin-bottom:14px"></div>
+      <div id="agenda"></div>
+    </section>
+
+    <section class="card">
+      <h2>Kalender</h2>
+      <div class="cal">
+        <button id="sub" type="button">📅 Prenumerera</button>
+        <button id="dlIcs" type="button">↓ .ics</button>
+        <button id="dlJson" type="button">↓ .json</button>
+        <button id="share" type="button">↗ Dela</button>
+        <button id="merge" type="button">⇄ Slå ihop</button>
+      </div>
+      <p class="muted" id="calHint" style="margin:10px 0 0"></p>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary><h2 style="margin:0">Historik <span class="muted" id="logCount" style="text-transform:none;letter-spacing:0"></span></h2></summary>
+        <ul class="log" id="log" style="margin-top:12px"></ul>
+      </details>
+    </section>
+    <p class="muted" style="text-align:center;margin:0"><a href="index.json" style="color:inherit">index.json</a> · kategorifärger är fasta</p>
+  </div>
+</main>
+
+<dialog id="edit"><form method="dialog" id="editForm">
+  <h2 id="editH">Ny syssla</h2>
+  <label>Vad <input class="f" name="title" required maxlength="120" autocomplete="off"></label>
+  <div class="catpick" id="catpick" role="radiogroup" aria-label="Kategori"></div>
+  <label>När <input class="f" type="datetime-local" name="start" required></label>
+  <div class="grid2">
+    <label>Minuter <input class="f" type="number" name="dur" min="0" max="1440" inputmode="numeric"></label>
+    <label>Upprepa <select class="f" name="rrule" id="rrule"></select></label>
+  </div>
+  <div>
+    <label>Larm <select class="f" name="alarm">
+      <option value="">Inget</option><option value="0">Vid start</option><option value="5">5 min innan</option>
+      <option value="10">10 min innan</option><option value="15">15 min innan</option><option value="30">30 min innan</option><option value="60">1 h innan</option>
+    </select></label>
+  </div>
+  <label>Anteckning <textarea class="f" name="note" rows="2" maxlength="500"></textarea></label>
+  <div class="end"><button class="del" id="editDel" type="button">Ta bort</button>
+    <span class="row"><button value="cancel" formnovalidate class="ghost">Avbryt</button><button class="big" value="ok">Spara</button></span></div>
+</form></dialog>
+
+<dialog id="mergeD"><form method="dialog" id="mergeForm">
+  <h2>Slå ihop kalender</h2>
+  <p class="muted" style="margin:0">Fil (.ics/.json), en delad länk eller en kalender-URL. Samma UID uppdateras bara om den är nyare.</p>
+  <label>Fil <input class="f" type="file" name="file" accept=".ics,.json,text/calendar,application/json"></label>
+  <label>Länk eller URL <input class="f" name="url" placeholder="https://… eller webcal://…" autocomplete="off"></label>
+  <div class="end"><span></span><span class="row"><button value="cancel" formnovalidate class="ghost">Avbryt</button><button class="big" value="ok">Slå ihop</button></span></div>
+</form></dialog>
+
+<div class="alarm" id="alarm" role="alertdialog" aria-live="assertive">
+  <div><p id="alarmWhen"></p><h1 id="alarmTitle"></h1><p id="alarmCat"></p>
+  <div class="row"><button id="snooze" type="button">Snooze 5 min</button><button id="stop" type="button">Klar ✓</button></div></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

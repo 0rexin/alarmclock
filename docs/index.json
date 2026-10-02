@@ -1,0 +1,54 @@
+{
+ "name": "alarmclock",
+ "about": "ADHD-timer och väckarklocka med färgkodade sysslor, delbar/prenumererbar kalender.",
+ "categories": {
+  "hem": "Hem",
+  "arenden": "Ärenden",
+  "manniskor": "Människor",
+  "skola": "Skola",
+  "jobb": "Jobb",
+  "privat": "Privat"
+ },
+ "presets": [
+  "Gym",
+  "Handla",
+  "Sophantering",
+  "Städ",
+  "Disk",
+  "Organisering",
+  "Tvätt",
+  "Dammsugning",
+  "Moppa golv",
+  "Torka ytor",
+  "Städa badrum",
+  "Byta sängkläder",
+  "Väckning",
+  "Claude-gräns 5h (25/50/75/100 %)",
+  "Claude-gräns 7 dagar (50/100 %)"
+ ],
+ "functions": {
+  "visual_timer": "Krympande pastellcirkel; starta från en syssla eller fri tid (5–90 min).",
+  "alarm_clock": "Stor klocka, larm per händelse (minuter innan), ljud + vibration + notis, snooze 5 min.",
+  "presets": "Snabbval med standardlängd och upprepning per syssla.",
+  "categories": "Sex fasta kategorier med fasta färger — kan inte väljas om.",
+  "claude_limit": "Notera Claude-förbrukning; appen håller starttid, visar återställning och lägger in larm.",
+  "filter": "Kategorichips filtrerar agenda, nedladdning, delning och prenumeration (?cat=, ?by=).",
+  "download": "Ladda ner filtrerad kalender som .ics eller .json.",
+  "share": "Dela länk — servern: live-länk; statisk: data i länken (#d=).",
+  "subscribe": "webcal://…/cal.ics prenumeration med VALARM (kräver lokal server).",
+  "merge": "Slå ihop .ics/.json-fil, delad länk eller URL; dubbletter avgörs av UID + senast ändrad.",
+  "history": "Varje ändring loggas med namn och tid.",
+  "users": "Endast namn — ingen inloggning.",
+  "access": "Servern svarar bara på loopback, LAN (RFC1918), link-local, ULA och Tailscale (100.64/10)."
+ },
+ "endpoints": {
+  "GET /": "Appen",
+  "GET /index.json": "Detta index",
+  "GET /api/state": "Hela tillståndet {tasks, claude, log}",
+  "POST /api/op": "Applicera ändring {type: upsert|remove|done|merge|claude, by, …}",
+  "POST /api/merge": "Slå ihop {ics|json|url, by}",
+  "GET /api/log": "Ändringslogg (namn + tid)",
+  "GET /cal.ics?cat=hem,jobb&by=Namn": "Prenumererbar ICS, filtrerbar",
+  "GET /cal.json?cat=…&by=…": "Samma som JSON"
+ }
+}

@@ -20,7 +20,7 @@ let state = emptyState(), server = false;
 const me = () => ($('#me').value.trim() || 'okänd');
 
 async function load() {
-  try {
+  if (!location.hostname.endsWith('github.io')) try {
     const r = await fetch('api/state', { cache: 'no-store' });
     if (r.ok && r.headers.get('content-type')?.includes('json')) { state = await r.json(); server = true; return; }
   } catch {}

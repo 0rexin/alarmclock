@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>io.github.0rexin.alarmclock</string>
+  <key>ProgramArguments</key><array><string>/Users/fanny/Applications/Alarmclock.app/Contents/MacOS/Alarmclock</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>ProcessType</key><string>Interactive</string>
+  <key>StandardErrorPath</key><string>/Users/fanny/Developer/apps/alarmclock/data/menubar.log</string>
+</dict></plist>

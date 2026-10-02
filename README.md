@@ -32,3 +32,15 @@ SEX KATEGORIER MED FASTA FÄRGER: HEM, ÄRENDEN, MÄNNISKOR, SKOLA, JOBB, PRIVAT
 - **Historik** — varje ändring loggas med namn och tid; en användare är bara ett namn.
 
 *CAREFUL: på GitHub Pages finns ingen server — delning sker via data i länken (`#d=`) och prenumeration kräver `just run`.*
+
+---
+
+## **MENYRADEN**
+`just menubar` LÄGGER EN ROSA URTAVLA BREDVID KALENDERN I MENYRADEN PÅ MACEN.
+
+- Vänsterklick öppnar appen i en popover; högerklick ger Öppna i webbläsaren, Ladda om och Avsluta.
+- Ikonen är ritad som linjeikon i samma rosa (`#f1b9d8`) som grannikonerna.
+- Appen startar `bun server.ts` själv om inget svarar på port 8787, annars visas GitHub Pages-versionen.
+- Bygget hamnar i `~/Applications/Alarmclock.app` och startas vid inloggning via `~/Library/LaunchAgents/io.github.0rexin.alarmclock.plist`.
+
+*CAREFUL: macOS placerar nya ikoner längst till vänster — ⌘-dra ikonen om den hamnar fel; serverlogg i `data/server.log`.*
